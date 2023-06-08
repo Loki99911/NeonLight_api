@@ -2,54 +2,65 @@ const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 const { mongooseHandleError } = require("../helpers");
 
-const phoneValidation = /^[\(]\d{3}[\)]\s\d{3}[\-]\d{4}$/;
+const priceValidation = /^\d+(\.\d{2})?$/;
 
 const productSchema = new Schema({
-  name: {
+  productName: {
     type: String,
     required: [true, "Set name for product"],
   },
-  email: {
+  productCode: {
     type: String,
-    required: [true, "Set email for product"],
+    required: [true, "Set vendor code for product"],
   },
-  phone: {
+  productPrice: {
+    type: Number,
+    match: priceValidation,
+    required: [true, "Set price for product"],
+  },
+  productСoverURL: {
     type: String,
-    match: phoneValidation,
-    required: [true, "Set phone for product"],
   },
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: "user",
+  productPhotoURL: {
+    type: String,
   },
-  favorite: {
-    type: Boolean,
-    default: false,
-  },
+  additionalAttributes: [
+    {
+      name: String,
+      value: String,
+    },
+  ],
 });
 
 productSchema.post("save", mongooseHandleError);
 
 const schemaJoi = Joi.object({
-  name: Joi.string()
-    .messages({ "any.required": "missing field - name" })
+  productName: Joi.string()
+    .messages({ "any.required": "missing field - productName" })
     .required(),
-  email: Joi.string()
-    .messages({ "any.required": "missing field - email" })
+  productCode: Joi.string()
+    .messages({ "any.required": "missing field - productCode" })
     .required(),
-  phone: Joi.string()
-    .messages({ "any.required": "missing field - phone" })
-    .pattern(phoneValidation)
+  productPrice: Joi.number()
+    .messages({ "any.required": "missing field - productPrice" })
+    // .pattern(priceValidation)
     .required(),
-  favorite: Joi.boolean(),
+  productCoverURL: Joi.string(),
+  productPhotoURL: Joi.string(),
+  additionalAttributes: Joi.array().items(
+    Joi.object({
+      name: Joi.string(),
+      value: Joi.string(),
+    })
+  ),
 });
 
-const updateFavoriteSchemaJoi = Joi.object({
-  favorite: Joi.boolean()
-    .messages({ "any.required": "missing field - favorite" })
-    .required(),
-});
+// const updateFavoriteSchemaJoi = Joi.object({
+//   favorite: Joi.boolean()
+//     .messages({ "any.required": "missing field - favorite" })
+//     .required(),
+// });
 
 const Product = model("product", productSchema);
 
-module.exports = { Product, schemaJoi, updateFavoriteSchemaJoi };
+module.exports = { Product, schemaJoi};//, updateFavoriteSchemaJoi 

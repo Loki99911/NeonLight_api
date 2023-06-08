@@ -4,13 +4,13 @@ const ctrl = require("../../controllers/productsContr");
 const { validateBody, isValidId, authenticate } = require("../../middlewars");
 const { schemaJoi, updateFavoriteSchemaJoi } = require("../../models/product");
 
-router.get("/", authenticate, ctrl.listProducts);
+router.get("/", ctrl.listProducts); //authenticate,
 
-router.get("/:productId", authenticate, isValidId, ctrl.getProductById);
+router.get("/:productId", isValidId, ctrl.getProductById); //authenticate,
 
-router.post("/", authenticate, validateBody(schemaJoi), ctrl.addProduct);
+router.post("/", validateBody(schemaJoi), ctrl.addProduct); //authenticate,
 
-router.delete("/:productId", authenticate, isValidId, ctrl.removeProduct);
+router.delete("/:productId", isValidId, ctrl.removeProduct); //authenticate,
 
 router.put(
   "/:productId",

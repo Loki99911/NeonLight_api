@@ -2,16 +2,18 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 const { Product } = require("../models/product");
 
 const listProducts = async (req, res) => {
-  const { _id: owner } = req.user;
-  // --- pagination&filtration ---
-  const { page = 1, limit = 20, favorite } = req.params;
-  const skip = (page - 1) * limit;
+  // const { _id: owner} = req.user;
+  // // --- pagination&filtration ---
+  // const { page = 1, limit = 20, favorite } = req.params;
+  // const skip = (page - 1) * limit;
 
-  const answer = await Product.find(
-    favorite ? { owner, favorite } : { owner },
-    "-__v",
-    { skip, limit }
-  );
+  // const answer = await Product.find(
+  //   favorite ? { owner, favorite } : { owner },
+  //   "-__v",
+  //   { skip, limit }
+  // );
+  // res.json(answer);
+  const answer = await Product;
   res.json(answer);
 };
 
