@@ -2,6 +2,15 @@ const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 const { mongooseHandleError } = require("../helpers");
 
+const PORDUCT_IMG_PARAMS = {
+  dimensions: {
+    // width: 103,
+    height: 437,
+  },
+  maxFileSize: 100000,
+  acceptableFileTypes: ["jpg", "jpeg", "png"],
+};
+
 const priceValidation = /^\d+(\.\d{2})?$/;
 
 const productSchema = new Schema({
@@ -21,9 +30,11 @@ const productSchema = new Schema({
   productСoverURL: {
     type: String,
   },
-  productPhotoURL: {
-    type: String,
-  },
+  productPhotoURL: [
+    {
+      type: String,
+    },
+  ],
   additionalAttributes: [
     {
       name: String,
@@ -55,12 +66,6 @@ const schemaJoi = Joi.object({
   ),
 });
 
-// const updateFavoriteSchemaJoi = Joi.object({
-//   favorite: Joi.boolean()
-//     .messages({ "any.required": "missing field - favorite" })
-//     .required(),
-// });
-
 const Product = model("product", productSchema);
 
-module.exports = { Product, schemaJoi};//, updateFavoriteSchemaJoi 
+module.exports = { Product, schemaJoi, PORDUCT_IMG_PARAMS }; //, updateFavoriteSchemaJoi
