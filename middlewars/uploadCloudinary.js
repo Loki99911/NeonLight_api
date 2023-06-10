@@ -1,9 +1,8 @@
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const { nanoid } = require("nanoid");
 
-const { HttpError } = require("../helpers");
+const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
 
@@ -13,54 +12,54 @@ cloudinary.config({
   api_secret: CLOUDINARY_SECRET,
 });
 
-
-const { PORDUCT_IMG_PARAMS } = require("../models/product");
-
 const multerConfigCover = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
-    const avatarName = `${req.user._id}_cover`;
+    const extension = file.originalname.split(".").pop();
+    const coverName = `${req.user._id}_cover.${extension}`;
     return {
-      folder: "svitlo/assets/covers",
-      allowed_formats: PORDUCT_IMG_PARAMS.acceptableFileTypes,
-      public_id: avatarName,
-      transformation: [
-        {
-          height: PORDUCT_IMG_PARAMS.dimensions.height,
-
-          // width: PORDUCT_IMG_PARAMS.dimensions.width,
-
-          crop: "fill",
-        },
-      ],
-      bytes: PORDUCT_IMG_PARAMS.maxFileSize,
+      folder: "covers",
+      allowed_formats: ["png", "jpeg"],
+      public_id: coverName,
+      transformation: [{ width: 473, crop: "fill" }],
+      max_bytes: 100000,
     };
   },
 });
 
-const multerConfiRecipe = new CloudinaryStorage({
+const multerConfigPhoto = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
-    const { _id } = req.user;
-    const imgID = nanoid(5);
-    const recipeName = `${_id}_${imgID}_recipe`;
+    const extension = file.originalname.split(".").pop();
+    const photoName = `${req.user._id}_photo.${extension}`;
     return {
-      folder: "soyummy/assets/own_recipes_photos",
-      allowed_formats: PORDUCT_IMG_PARAMS.acceptableFileTypes,
-      public_id: recipeName,
-      transformation: [
-        {
-          height: PORDUCT_IMG_PARAMS.dimensions.height,
-          // width: PORDUCT_IMG_PARAMS.dimensions.width,
-          crop: "fill",
-        },
-      ],
+      folder: "photos",
+      allowed_formats: ["png", "jpeg"],
+      public_id: photoName,
+      transformation: [{ width: 473, crop: "fill" }],
+      max_bytes: 100000,
     };
   },
 });
 
-function fileFilter(req, file, cb) {
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+const multerConfigCatalog = new CloudinaryStorage({
+  cloudinary,
+  params: (req, file) => {
+    const extension = file.originalname.split(".").pop();
+    const catalogName = `${req.user._id}_catalog.${extension}`;
+    return {
+      folder: "catalogs",
+      allowed_formats: ["pdf"],
+      public_id: catalogName,
+    };
+  },
+});
+
+function photoFilter(req, file, cb) {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png"
+  ) {
     cb(null, true);
   } else {
     cb(
@@ -72,29 +71,38 @@ function fileFilter(req, file, cb) {
   }
 }
 
+function fileFilter(req, file, cb) {
+  if (
+    file.mimetype === "application/pdf"
+  ) {
+    cb(null, true);
+  } else {
+    cb(
+      HttpError(
+        415,
+        "Unsupported image format. Choose file with extention pdf"
+      )
+    );
+  }
+}
+
 const uploadCloudCover = multer({
   storage: multerConfigCover,
-  fileFilter,
+  photoFilter,
 });
 
-const uploadCloudRecipe = multer({
-  storage: multerConfiRecipe,
-  fileFilter,
+const uploadCloudPhoto = multer({
+  storage: multerConfigPhoto,
+  photoFilter,
 });
 
-// const ingredientsParser = (req, res, next) => {
-//   const { ingredients } = req.body;
-//   try {
-//     const parsedData = JSON.parse(ingredients);
-//     req.body.ingredients = parsedData;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+const uploadCloudCatalog = multer({
+  storage: multerConfigCatalog,
+  fileFilter,
+});
 
 module.exports = {
-  uploadCloudCover: uploadCloudCover.single("picture"),
-  uploadCloudRecipe: uploadCloudRecipe.single("picture"),
-  // ingredientsParser: ingredientsParser,
+  uploadCloudCover: ctrlWrapper(uploadCloudCover.single("cover")),
+  uploadCloudPhoto: ctrlWrapper(uploadCloudPhoto.array("photos", 12)),
+  uploadCloudCatalog: ctrlWrapper(uploadCloudCatalog.single("catalog")),
 };

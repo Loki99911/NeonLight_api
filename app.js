@@ -6,6 +6,7 @@ require("dotenv").config();
 const authRouter = require("./routes/api/authRouts");
 const productsRouter = require('./routes/api/productsRouts');
 const catalogRouter = require("./routes/api/catalogsRouts");
+const reviewsRouter = require("./routes/api/reviewsRouts")
 const app = express()
 
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short'
@@ -18,6 +19,7 @@ app.use(express.static("public"))
 app.use("/api/users", authRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/catalogs", catalogRouter);
+app.use("/api/reviews", reviewsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found route' })

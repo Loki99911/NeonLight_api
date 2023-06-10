@@ -4,8 +4,7 @@ const { mongooseHandleError } = require("../helpers");
 
 const PORDUCT_IMG_PARAMS = {
   dimensions: {
-    // width: 103,
-    height: 437,
+    width: 473,
   },
   maxFileSize: 100000,
   acceptableFileTypes: ["jpg", "jpeg", "png"],
@@ -68,4 +67,4 @@ const schemaJoi = Joi.object({
 
 const Product = model("product", productSchema);
 
-module.exports = { Product, schemaJoi, PORDUCT_IMG_PARAMS }; //, updateFavoriteSchemaJoi
+module.exports = { Product, schemaJoi, PORDUCT_IMG_PARAMS };
